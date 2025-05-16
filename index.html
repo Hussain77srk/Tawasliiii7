@@ -396,6 +396,55 @@
         .bounce {
             animation: bounce 2s infinite;
         }
+        /* Excel import styles */
+        .import-step {
+            display: none;
+        }
+        .import-step.active {
+            display: block;
+        }
+        .excel-column {
+            background-color: #f3f4f6;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+        .dark .excel-column {
+            background-color: #374151;
+            border-color: #4b5563;
+        }
+        .excel-column:hover {
+            border-color: #5D5CDE;
+        }
+        .excel-preview-table {
+            font-size: 0.875rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .mapping-field {
+            background-color: #eef2ff;
+            border: 1px solid #e0e7ff;
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            color: #5D5CDE;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin: 0.25rem;
+        }
+        .dark .mapping-field {
+            background-color: #312e81;
+            border-color: #4f46e5;
+        }
+        .table-hint {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        .dark .table-hint {
+            color: #9ca3af;
+        }
     </style>
 </head>
 <body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
@@ -477,82 +526,284 @@
                             <i class="fas fa-user-graduate text-primary ml-2"></i>
                             إضافة طالب جديد
                         </h2>
+                        <button id="toggle-import" class="text-primary hover:text-secondary flex items-center text-sm">
+                            <i class="fas fa-file-excel ml-1"></i> استيراد من Excel
+                        </button>
                     </div>
-                    <form id="student-form" class="space-y-3">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">رقم الاسيس*</label>
-                            <input type="number" id="student-id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">اسم الطالب*</label>
-                            <input type="text" id="student-name" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
+
+                    <!-- نموذج إضافة طالب -->
+                    <div id="manual-entry">
+                        <form id="student-form" class="space-y-3">
                             <div>
-                                <label class="block text-sm font-medium mb-1">الصف*</label>
-                                <select id="grade" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
-                                    <option value="">اختر الصف</option>
-                                    <option value="روضة أولى">روضة أولى (KG1)</option>
-                                    <option value="روضة ثانية">روضة ثانية (KG2)</option>
-                                    <option value="الأول">الأول</option>
-                                    <option value="الثاني">الثاني</option>
-                                    <option value="الثالث">الثالث</option>
-                                    <option value="الرابع">الرابع</option>
-                                    <option value="الخامس">الخامس</option>
-                                    <option value="السادس">السادس</option>
-                                    <option value="السابع">السابع</option>
-                                    <option value="الثامن">الثامن</option>
-                                    <option value="التاسع">التاسع</option>
-                                    <option value="العاشر">العاشر</option>
-                                    <option value="الحادي عشر">الحادي عشر</option>
-                                    <option value="الثاني عشر">الثاني عشر</option>
-                                </select>
+                                <label class="block text-sm font-medium mb-1">رقم الاسيس*</label>
+                                <input type="number" id="student-id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">الفصل*</label>
-                                <select id="class-room" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
-                                    <option value="">اختر الفصل</option>
-                                    <option value="أ">أ</option>
-                                    <option value="ب">ب</option>
-                                    <option value="ج">ج</option>
-                                    <option value="د">د</option>
-                                </select>
+                                <label class="block text-sm font-medium mb-1">اسم الطالب*</label>
+                                <input type="text" id="student-name" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
                             </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">الصف*</label>
+                                    <select id="grade" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر الصف</option>
+                                        <option value="روضة أولى">روضة أولى (KG1)</option>
+                                        <option value="روضة ثانية">روضة ثانية (KG2)</option>
+                                        <option value="الأول">الأول</option>
+                                        <option value="الثاني">الثاني</option>
+                                        <option value="الثالث">الثالث</option>
+                                        <option value="الرابع">الرابع</option>
+                                        <option value="الخامس">الخامس</option>
+                                        <option value="السادس">السادس</option>
+                                        <option value="السابع">السابع</option>
+                                        <option value="الثامن">الثامن</option>
+                                        <option value="التاسع">التاسع</option>
+                                        <option value="العاشر">العاشر</option>
+                                        <option value="الحادي عشر">الحادي عشر</option>
+                                        <option value="الثاني عشر">الثاني عشر</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">الفصل*</label>
+                                    <select id="class-room" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر الفصل</option>
+                                        <option value="أ">أ</option>
+                                        <option value="ب">ب</option>
+                                        <option value="ج">ج</option>
+                                        <option value="د">د</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">الفصل الدراسي*</label>
+                                    <select id="semester" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر الفصل الدراسي</option>
+                                        <option value="الأول">الأول</option>
+                                        <option value="الثاني">الثاني</option>
+                                        <option value="الثالث">الثالث</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">الجنس*</label>
+                                    <select id="gender" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر الجنس</option>
+                                        <option value="ذكر">ذكر</option>
+                                        <option value="أنثى">أنثى</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">الفصل الدراسي*</label>
-                                <select id="semester" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
-                                    <option value="">اختر الفصل الدراسي</option>
-                                    <option value="الأول">الأول</option>
-                                    <option value="الثاني">الثاني</option>
-                                    <option value="الثالث">الثالث</option>
-                                </select>
+                                <label class="block text-sm font-medium mb-1">المنطقة</label>
+                                <input type="text" id="region" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">الجنس*</label>
-                                <select id="gender" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
-                                    <option value="">اختر الجنس</option>
-                                    <option value="ذكر">ذكر</option>
-                                    <option value="أنثى">أنثى</option>
-                                </select>
+                                <label class="block text-sm font-medium mb-1">رقم هاتف ولي الأمر*</label>
+                                <input type="tel" id="parent-phone" required placeholder="مثال: 971512345678" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">أدخل رقم الهاتف مع كود الدولة (مثال: 971512345678)</p>
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md transition duration-200 font-medium">
+                                    <i class="fas fa-save ml-2"></i>حفظ البيانات
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- قسم استيراد ملف Excel -->
+                    <div id="excel-import" class="hidden">
+                        <div class="import-step active" id="step-1">
+                            <div class="mb-4">
+                                <h3 class="text-md font-semibold mb-2">استيراد بيانات الطلاب من ملف Excel</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">يمكنك استيراد بيانات الطلاب عبر رفع ملف Excel. تأكد من أن الملف يحتوي على الأعمدة الضرورية.</p>
+                                
+                                <div class="file-upload w-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-2 px-4 rounded-md text-center">
+                                    <i class="fas fa-file-excel ml-2"></i>
+                                    <span>اختر ملف Excel للاستيراد</span>
+                                    <input type="file" id="excel-file" accept=".xlsx, .xls" class="cursor-pointer">
+                                </div>
+                                
+                                <div id="excel-file-info" class="hidden mt-2">
+                                    <div class="file-name"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between mt-4">
+                                <button id="cancel-import" class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md transition duration-200">
+                                    إلغاء
+                                </button>
+                                <button id="next-step-1" disabled class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md transition duration-200 font-medium opacity-50 cursor-not-allowed">
+                                    التالي <i class="fas fa-arrow-left mr-2"></i>
+                                </button>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">المنطقة</label>
-                            <input type="text" id="region" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                        
+                        <div class="import-step" id="step-2">
+                            <h3 class="text-md font-semibold mb-2">مراجعة البيانات</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">تمت قراءة <span id="rows-count" class="font-semibold">0</span> صف من الملف.</p>
+                            
+                            <div class="excel-preview-table responsive-table mb-4">
+                                <table id="excel-preview" class="min-w-full border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100 dark:bg-gray-700">
+                                            <!-- سيتم إضافة رؤوس الأعمدة هنا -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- سيتم إضافة صفوف البيانات هنا -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="flex justify-between mt-4">
+                                <button id="back-step-2" class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md transition duration-200">
+                                    <i class="fas fa-arrow-right ml-2"></i> السابق
+                                </button>
+                                <button id="next-step-2" class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md transition duration-200 font-medium">
+                                    التالي <i class="fas fa-arrow-left mr-2"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">رقم هاتف ولي الأمر*</label>
-                            <input type="tel" id="parent-phone" required placeholder="مثال: 971512345678" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">أدخل رقم الهاتف مع كود الدولة (مثال: 971512345678)</p>
+                        
+                        <div class="import-step" id="step-3">
+                            <h3 class="text-md font-semibold mb-2">ربط الأعمدة</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">يرجى ربط أعمدة ملف Excel مع حقول بيانات الطلاب</p>
+                            
+                            <div class="space-y-3 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">رقم الاسيس*</label>
+                                    <select id="map-student-id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر العمود المقابل</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">اسم الطالب*</label>
+                                    <select id="map-student-name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر العمود المقابل</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">الصف*</label>
+                                    <select id="map-grade" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر العمود المقابل</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">الفصل*</label>
+                                    <select id="map-class-room" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر العمود المقابل</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">الفصل الدراسي*</label>
+                                    <select id="map-semester" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر العمود المقابل</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">الجنس*</label>
+                                    <select id="map-gender" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر العمود المقابل</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">المنطقة</label>
+                                    <select id="map-region" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر العمود المقابل</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">رقم هاتف ولي الأمر*</label>
+                                    <select id="map-parent-phone" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option value="">اختر العمود المقابل</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between mt-4">
+                                <button id="back-step-3" class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md transition duration-200">
+                                    <i class="fas fa-arrow-right ml-2"></i> السابق
+                                </button>
+                                <button id="next-step-3" class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md transition duration-200 font-medium">
+                                    التالي <i class="fas fa-arrow-left mr-2"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="pt-2">
-                            <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md transition duration-200 font-medium">
-                                <i class="fas fa-save ml-2"></i>حفظ البيانات
-                            </button>
+                        
+                        <div class="import-step" id="step-4">
+                            <h3 class="text-md font-semibold mb-2">تأكيد الاستيراد</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                مراجعة نهائية قبل استيراد البيانات. سيتم استيراد <span id="valid-rows-count" class="font-semibold">0</span> طالب.
+                            </p>
+                            
+                            <div class="p-3 bg-blue-50 dark:bg-blue-900 rounded-md mb-4">
+                                <p class="text-sm text-blue-800 dark:text-blue-200">
+                                    <i class="fas fa-info-circle ml-1"></i>
+                                    يرجى التأكد من أن جميع البيانات صحيحة قبل الاستمرار. سيتم إنشاء سجلات جديدة للطلاب، ويمكن أن يؤدي ذلك إلى تكرار السجلات إذا كانت البيانات موجودة بالفعل.
+                                </p>
+                            </div>
+                            
+                            <div class="rounded-md border border-gray-300 dark:border-gray-700 p-3 mb-4">
+                                <h4 class="font-medium mb-2">ملخص الاستيراد</h4>
+                                <ul id="import-summary" class="text-sm space-y-1 list-inside list-disc">
+                                    <!-- سيتم إضافة ملخص الاستيراد هنا -->
+                                </ul>
+                            </div>
+                            
+                            <div class="flex justify-between mt-4">
+                                <button id="back-step-4" class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md transition duration-200">
+                                    <i class="fas fa-arrow-right ml-2"></i> السابق
+                                </button>
+                                <button id="import-data" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition duration-200 font-medium">
+                                    <i class="fas fa-file-import ml-2"></i> استيراد البيانات
+                                </button>
+                            </div>
                         </div>
-                    </form>
+                        
+                        <div class="import-step" id="step-5">
+                            <div class="text-center py-8">
+                                <div id="import-progress-container">
+                                    <h3 class="text-md font-semibold mb-2">جاري استيراد البيانات...</h3>
+                                    <div class="w-20 h-20 mx-auto mb-4">
+                                        <div class="animate-spin rounded-full h-20 w-20 border-b-2 border-primary"></div>
+                                    </div>
+                                    <p id="import-progress-text" class="text-sm text-gray-600 dark:text-gray-400">
+                                        جاري استيراد <span id="current-imported">0</span> من <span id="total-to-import">0</span>
+                                    </p>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full mt-4 mb-4">
+                                        <div id="import-progress-bar" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div id="import-success" class="hidden">
+                                    <div class="text-green-500 flex justify-center mb-4">
+                                        <i class="fas fa-check-circle text-5xl"></i>
+                                    </div>
+                                    <h3 class="text-lg font-semibold mb-2">تم الاستيراد بنجاح!</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                        تم استيراد <span id="success-count" class="font-semibold">0</span> طالب بنجاح.
+                                    </p>
+                                </div>
+                                
+                                <div id="import-error" class="hidden">
+                                    <div class="text-red-500 flex justify-center mb-4">
+                                        <i class="fas fa-times-circle text-5xl"></i>
+                                    </div>
+                                    <h3 class="text-lg font-semibold mb-2">حدث خطأ أثناء الاستيراد</h3>
+                                    <p id="error-message" class="text-sm text-red-600 dark:text-red-400 mb-4">
+                                        حدث خطأ أثناء استيراد البيانات.
+                                    </p>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <button id="finish-import" class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md transition duration-200 font-medium hidden">
+                                        <i class="fas fa-check ml-2"></i> إنهاء
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div id="form-message" class="mt-3 text-center hidden"></div>
                 </div>
                 
@@ -1113,7 +1364,7 @@
                             <i class="fas fa-calendar-alt text-primary ml-2"></i>
                             الرسائل المجدولة
                         </h2>
-                        <button id="refresh-:" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-2 px-3 rounded-md transition duration-200">
+                        <button id="refresh-scheduled" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-2 px-3 rounded-md transition duration-200">
                             <i class="fas fa-sync-alt"></i>
                         </button>
                     </div>
@@ -1389,6 +1640,47 @@
         </div>
     </div>
 
+    <!-- نافذة معاينة وتأكيد استيراد ملف Excel (تظهر بعد اختيار الملف) -->
+    <div id="excel-confirm-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75 dark:bg-gray-900 dark:opacity-80"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="mb-4 flex justify-between">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                            معاينة بيانات الاستيراد
+                        </h3>
+                        <button id="close-excel-preview" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        تم العثور على <span id="excel-row-count" class="font-semibold">0</span> صف في ملف Excel. يرجى تأكيد صحة البيانات ومطابقتها للحقول.
+                    </p>
+                    
+                    <div class="responsive-table max-h-96 overflow-y-auto mb-4">
+                        <table id="excel-data-table" class="min-w-full border-collapse">
+                            <!-- سيتم إضافة جدول البيانات هنا -->
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="import-excel-confirm" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mr-3 sm:w-auto sm:text-sm">
+                        <i class="fas fa-file-import ml-2"></i> استيراد البيانات
+                    </button>
+                    <button type="button" id="cancel-excel-import" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-700">
+                        إلغاء
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- إشعار النجاح (Toast) -->
     <div id="toast" class="fixed bottom-4 right-4 px-4 py-2 rounded-lg text-white transition-all transform translate-y-12 opacity-0 duration-300 z-50 flex items-center">
         <i class="fas fa-check-circle ml-2"></i>
@@ -1443,6 +1735,10 @@
         let messageTypesChart;
         let weeklyActivityChart;
         let gradeDistributionChart;
+        let excelData = null; // لتخزين بيانات ملف Excel
+        let excelColumns = []; // لتخزين أسماء الأعمدة في ملف Excel
+        let excelColumnMapping = {}; // لتخزين تعيين أعمدة Excel إلى حقول الطلاب
+        let currentImportStep = 1; // للتعامل مع خطوات الاستيراد
         
         // عناصر DOM
         const tabButtons = document.querySelectorAll('.tab');
@@ -1524,6 +1820,35 @@
         const useDelay = document.getElementById('use-delay');
         const delayOptions = document.getElementById('delay-options');
         const delaySeconds = document.getElementById('delay-seconds');
+        
+        // عناصر DOM الخاصة باستيراد Excel
+        const toggleImport = document.getElementById('toggle-import');
+        const manualEntry = document.getElementById('manual-entry');
+        const excelImport = document.getElementById('excel-import');
+        const excelFile = document.getElementById('excel-file');
+        const excelFileInfo = document.getElementById('excel-file-info');
+        const cancelImport = document.getElementById('cancel-import');
+        const nextStep1 = document.getElementById('next-step-1');
+        const backStep2 = document.getElementById('back-step-2');
+        const nextStep2 = document.getElementById('next-step-2');
+        const backStep3 = document.getElementById('back-step-3');
+        const nextStep3 = document.getElementById('next-step-3');
+        const backStep4 = document.getElementById('back-step-4');
+        const importData = document.getElementById('import-data');
+        const finishImport = document.getElementById('finish-import');
+        const rowsCount = document.getElementById('rows-count');
+        const excelPreview = document.getElementById('excel-preview');
+        const validRowsCount = document.getElementById('valid-rows-count');
+        const importSummary = document.getElementById('import-summary');
+        const importProgressContainer = document.getElementById('import-progress-container');
+        const importSuccess = document.getElementById('import-success');
+        const importError = document.getElementById('import-error');
+        const importProgressText = document.getElementById('import-progress-text');
+        const importProgressBar = document.getElementById('import-progress-bar');
+        const currentImported = document.getElementById('current-imported');
+        const totalToImport = document.getElementById('total-to-import');
+        const successCount = document.getElementById('success-count');
+        const errorMessage = document.getElementById('error-message');
         
         // حفظ القيم المؤقتة للرسالة
         let tempMessageData = {
@@ -1939,6 +2264,514 @@
                     testSendModal.classList.add('hidden');
                 }
             });
+            
+            // استيراد Excel - تبديل بين الإدخال اليدوي واستيراد Excel
+            toggleImport.addEventListener('click', () => {
+                if (manualEntry.classList.contains('hidden')) {
+                    // العودة إلى الإدخال اليدوي
+                    manualEntry.classList.remove('hidden');
+                    excelImport.classList.add('hidden');
+                    toggleImport.innerHTML = '<i class="fas fa-file-excel ml-1"></i> استيراد من Excel';
+                } else {
+                    // التبديل إلى استيراد Excel
+                    manualEntry.classList.add('hidden');
+                    excelImport.classList.remove('hidden');
+                    toggleImport.innerHTML = '<i class="fas fa-user-plus ml-1"></i> إدخال يدوي';
+                    
+                    // تعيين الخطوة الأولى كنشطة
+                    showImportStep(1);
+                }
+            });
+            
+            // التعامل مع تحميل ملف Excel
+            excelFile.addEventListener('change', handleExcelFileUpload);
+            
+            // إلغاء الاستيراد
+            cancelImport.addEventListener('click', () => {
+                manualEntry.classList.remove('hidden');
+                excelImport.classList.add('hidden');
+                toggleImport.innerHTML = '<i class="fas fa-file-excel ml-1"></i> استيراد من Excel';
+                
+                // إعادة تعيين البيانات
+                excelData = null;
+                excelColumns = [];
+                excelColumnMapping = {};
+                excelFile.value = '';
+                excelFileInfo.classList.add('hidden');
+                nextStep1.disabled = true;
+                nextStep1.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+            
+            // الانتقال من الخطوة 1 إلى 2
+            nextStep1.addEventListener('click', () => {
+                if (!nextStep1.disabled) {
+                    showImportStep(2);
+                    showExcelPreview();
+                }
+            });
+            
+            // العودة من الخطوة 2 إلى 1
+            backStep2.addEventListener('click', () => {
+                showImportStep(1);
+            });
+            
+            // الانتقال من الخطوة 2 إلى 3
+            nextStep2.addEventListener('click', () => {
+                showImportStep(3);
+                prepareColumnMapping();
+            });
+            
+            // العودة من الخطوة 3 إلى 2
+            backStep3.addEventListener('click', () => {
+                showImportStep(2);
+            });
+            
+            // الانتقال من الخطوة 3 إلى 4
+            nextStep3.addEventListener('click', () => {
+                if (validateColumnMapping()) {
+                    showImportStep(4);
+                    prepareImportSummary();
+                } else {
+                    showToast('يرجى ربط جميع الحقول المطلوبة', 'error');
+                }
+            });
+            
+            // العودة من الخطوة 4 إلى 3
+            backStep4.addEventListener('click', () => {
+                showImportStep(3);
+            });
+            
+            // بدء استيراد البيانات
+            importData.addEventListener('click', () => {
+                showImportStep(5);
+                importStudentsFromExcel();
+            });
+            
+            // إنهاء عملية الاستيراد
+            finishImport.addEventListener('click', () => {
+                manualEntry.classList.remove('hidden');
+                excelImport.classList.add('hidden');
+                toggleImport.innerHTML = '<i class="fas fa-file-excel ml-1"></i> استيراد من Excel';
+                
+                // إعادة تعيين البيانات
+                excelData = null;
+                excelColumns = [];
+                excelColumnMapping = {};
+                excelFile.value = '';
+                excelFileInfo.classList.add('hidden');
+                
+                // تحديث جدول الطلاب
+                loadStudentsTable();
+            });
+        }
+        
+        // عرض خطوة الاستيراد المحددة
+        function showImportStep(step) {
+            // إخفاء جميع الخطوات
+            document.querySelectorAll('.import-step').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // إظهار الخطوة المحددة
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            // تحديث الخطوة الحالية
+            currentImportStep = step;
+        }
+        
+        // معالجة تحميل ملف Excel
+        function handleExcelFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // تحقق من نوع الملف
+            if (!file.name.match(/\.(xlsx|xls)$/i)) {
+                showToast('يجب اختيار ملف Excel (بامتداد .xlsx أو .xls)', 'error');
+                excelFile.value = '';
+                return;
+            }
+            
+            // عرض اسم الملف
+            const fileNameEl = excelFileInfo.querySelector('.file-name') || excelFileInfo;
+            fileNameEl.textContent = file.name;
+            excelFileInfo.classList.remove('hidden');
+            
+            // قراءة ملف Excel
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // الحصول على اسم الورقة الأولى
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // تحويل البيانات إلى JSON
+                    excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    // التحقق من وجود بيانات
+                    if (excelData && excelData.length > 1) {
+                        // الحصول على أسماء الأعمدة (الصف الأول)
+                        excelColumns = excelData[0];
+                        
+                        // تفعيل زر الخطوة التالية
+                        nextStep1.disabled = false;
+                        nextStep1.classList.remove('opacity-50', 'cursor-not-allowed');
+                        
+                        showToast(`تم تحميل ملف Excel بنجاح. يحتوي على ${excelData.length - 1} صف من البيانات.`, 'success');
+                    } else {
+                        showToast('ملف Excel فارغ أو لا يحتوي على بيانات كافية.', 'error');
+                        excelFile.value = '';
+                        excelFileInfo.classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error('خطأ في قراءة ملف Excel:', error);
+                    showToast('حدث خطأ أثناء قراءة ملف Excel. يرجى التأكد من صحة الملف.', 'error');
+                    excelFile.value = '';
+                    excelFileInfo.classList.add('hidden');
+                }
+            };
+            
+            reader.onerror = () => {
+                showToast('حدث خطأ أثناء قراءة الملف.', 'error');
+                excelFile.value = '';
+                excelFileInfo.classList.add('hidden');
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // عرض معاينة بيانات Excel
+        function showExcelPreview() {
+            if (!excelData || excelData.length <= 1) {
+                showToast('لا توجد بيانات لعرضها', 'error');
+                return;
+            }
+            
+            // تحديث عدد الصفوف
+            rowsCount.textContent = excelData.length - 1;
+            
+            // بناء جدول المعاينة
+            let theadHTML = '<tr class="bg-gray-100 dark:bg-gray-700">';
+            for (let i = 0; i < excelColumns.length; i++) {
+                theadHTML += `<th class="py-2 px-3 text-right border-b dark:border-gray-600">${excelColumns[i]}</th>`;
+            }
+            theadHTML += '</tr>';
+            
+            let tbodyHTML = '';
+            // عرض 10 صفوف كحد أقصى للمعاينة
+            const rowsToShow = Math.min(excelData.length - 1, 10);
+            for (let i = 1; i <= rowsToShow; i++) {
+                tbodyHTML += '<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">';
+                for (let j = 0; j < excelColumns.length; j++) {
+                    const cellValue = excelData[i][j] !== undefined ? excelData[i][j] : '';
+                    tbodyHTML += `<td class="py-2 px-3">${cellValue}</td>`;
+                }
+                tbodyHTML += '</tr>';
+            }
+            
+            // إضافة صف إضافي إذا كان هناك المزيد من البيانات
+            if (excelData.length - 1 > 10) {
+                tbodyHTML += `
+                    <tr class="border-b dark:border-gray-700">
+                        <td colspan="${excelColumns.length}" class="py-2 px-3 text-center text-gray-500 dark:text-gray-400">
+                            ... المزيد من البيانات (${excelData.length - 11} صف إضافي)
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            // تحديث جدول المعاينة
+            excelPreview.querySelector('thead').innerHTML = theadHTML;
+            excelPreview.querySelector('tbody').innerHTML = tbodyHTML;
+        }
+        
+        // إعداد خيارات ربط الأعمدة
+        function prepareColumnMapping() {
+            if (!excelColumns || excelColumns.length === 0) return;
+            
+            // إنشاء خيارات الأعمدة لكل قائمة منسدلة
+            const selectFields = [
+                'map-student-id', 'map-student-name', 'map-grade', 'map-class-room', 
+                'map-semester', 'map-gender', 'map-region', 'map-parent-phone'
+            ];
+            
+            selectFields.forEach(fieldId => {
+                const select = document.getElementById(fieldId);
+                select.innerHTML = '<option value="">اختر العمود المقابل</option>';
+                
+                // إضافة خيارات الأعمدة
+                excelColumns.forEach((column, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = column;
+                    select.appendChild(option);
+                });
+                
+                // محاولة التطابق التلقائي
+                autoMapColumn(fieldId);
+                
+                // حفظ التغييرات عند اختيار عمود
+                select.addEventListener('change', () => {
+                    if (select.value) {
+                        excelColumnMapping[fieldId.replace('map-', '')] = parseInt(select.value);
+                    } else {
+                        delete excelColumnMapping[fieldId.replace('map-', '')];
+                    }
+                });
+            });
+        }
+        
+        // محاولة التطابق التلقائي للأعمدة
+        function autoMapColumn(fieldId) {
+            const select = document.getElementById(fieldId);
+            const fieldName = fieldId.replace('map-', '');
+            
+            // قائمة الكلمات المفتاحية للبحث لكل حقل
+            const keywordMap = {
+                'student-id': ['رقم', 'اسيس', 'id', 'student id', 'رقم الطالب', 'رقم الاسيس'],
+                'student-name': ['اسم', 'الطالب', 'name', 'student name', 'اسم الطالب'],
+                'grade': ['صف', 'الصف', 'grade', 'class', 'الصف الدراسي'],
+                'class-room': ['فصل', 'شعبة', 'الفصل', 'الشعبة', 'room', 'section'],
+                'semester': ['الفصل الدراسي', 'ترم', 'فصل دراسي', 'semester', 'term'],
+                'gender': ['جنس', 'الجنس', 'نوع', 'ذكر/أنثى', 'gender', 'sex'],
+                'region': ['منطقة', 'المنطقة', 'عنوان', 'العنوان', 'region', 'address'],
+                'parent-phone': ['هاتف', 'جوال', 'رقم الهاتف', 'رقم الجوال', 'phone', 'mobile', 'رقم ولي الأمر', 'هاتف ولي الأمر']
+            };
+            
+            // البحث عن تطابق
+            for (let i = 0; i < excelColumns.length; i++) {
+                const columnName = excelColumns[i].toString().toLowerCase();
+                
+                // التحقق من كل كلمة مفتاحية
+                if (keywordMap[fieldName].some(keyword => columnName.includes(keyword.toLowerCase()))) {
+                    select.value = i;
+                    excelColumnMapping[fieldName] = i;
+                    break;
+                }
+            }
+        }
+        
+        // التحقق من صحة ربط الأعمدة
+        function validateColumnMapping() {
+            // الحقول الإلزامية
+            const requiredFields = [
+                'student-id', 'student-name', 'grade', 'class-room', 
+                'semester', 'gender', 'parent-phone'
+            ];
+            
+            // التحقق من وجود جميع الحقول الإلزامية
+            for (const field of requiredFields) {
+                if (excelColumnMapping[field] === undefined) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // إعداد ملخص الاستيراد
+        function prepareImportSummary() {
+            if (!excelData || excelData.length <= 1) return;
+            
+            let validRowsCountValue = 0;
+            let summaryHTML = '';
+            
+            // التحقق من كل صف
+            for (let i = 1; i < excelData.length; i++) {
+                const row = excelData[i];
+                let isValidRow = true;
+                
+                // التحقق من وجود البيانات الإلزامية
+                const studentId = row[excelColumnMapping['student-id']];
+                const studentName = row[excelColumnMapping['student-name']];
+                const grade = row[excelColumnMapping['grade']];
+                const classRoom = row[excelColumnMapping['class-room']];
+                const semester = row[excelColumnMapping['semester']];
+                const gender = row[excelColumnMapping['gender']];
+                const parentPhone = row[excelColumnMapping['parent-phone']];
+                
+                if (!studentId || !studentName || !grade || !classRoom || !semester || !gender || !parentPhone) {
+                    isValidRow = false;
+                }
+                
+                // التحقق من صحة رقم الهاتف
+                if (parentPhone && !isValidPhoneNumber(parentPhone.toString())) {
+                    isValidRow = false;
+                }
+                
+                if (isValidRow) {
+                    validRowsCountValue++;
+                }
+            }
+            
+            // تحديث عدد الصفوف الصالحة
+            validRowsCount.textContent = validRowsCountValue;
+            
+            // إضافة ملخص
+            summaryHTML += `<li>إجمالي عدد الصفوف: ${excelData.length - 1}</li>`;
+            summaryHTML += `<li>عدد الصفوف الصالحة للاستيراد: ${validRowsCountValue}</li>`;
+            
+            if (validRowsCountValue < excelData.length - 1) {
+                summaryHTML += `<li class="text-yellow-500 dark:text-yellow-400">تم تجاهل ${excelData.length - 1 - validRowsCountValue} صف بسبب بيانات غير مكتملة أو غير صالحة</li>`;
+            }
+            
+            // تعيين تخطيط الأعمدة
+            summaryHTML += '<li class="mt-3 font-semibold">تخطيط الحقول:</li>';
+            const fieldLabels = {
+                'student-id': 'رقم الاسيس',
+                'student-name': 'اسم الطالب',
+                'grade': 'الصف',
+                'class-room': 'الفصل',
+                'semester': 'الفصل الدراسي',
+                'gender': 'الجنس',
+                'region': 'المنطقة',
+                'parent-phone': 'رقم هاتف ولي الأمر'
+            };
+            
+            for (const [field, index] of Object.entries(excelColumnMapping)) {
+                const columnName = excelColumns[index];
+                summaryHTML += `<li class="mr-4"><span class="mapping-field">${fieldLabels[field]}</span> ← ${columnName}</li>`;
+            }
+            
+            importSummary.innerHTML = summaryHTML;
+        }
+        
+        // استيراد الطلاب من ملف Excel
+        async function importStudentsFromExcel() {
+            if (!excelData || excelData.length <= 1) {
+                showImportError("لا توجد بيانات لاستيرادها");
+                return;
+            }
+            
+            // تهيئة واجهة التقدم
+            importProgressContainer.classList.remove('hidden');
+            importSuccess.classList.add('hidden');
+            importError.classList.add('hidden');
+            
+            // حساب عدد الصفوف الصالحة
+            let rowsToImport = [];
+            
+            for (let i = 1; i < excelData.length; i++) {
+                const row = excelData[i];
+                let isValidRow = true;
+                
+                // التحقق من وجود البيانات الإلزامية
+                const studentId = row[excelColumnMapping['student-id']];
+                const studentName = row[excelColumnMapping['student-name']];
+                const grade = row[excelColumnMapping['grade']];
+                const classRoom = row[excelColumnMapping['class-room']];
+                const semester = row[excelColumnMapping['semester']];
+                const gender = row[excelColumnMapping['gender']];
+                const parentPhone = row[excelColumnMapping['parent-phone']];
+                
+                if (!studentId || !studentName || !grade || !classRoom || !semester || !gender || !parentPhone) {
+                    isValidRow = false;
+                }
+                
+                // التحقق من صحة رقم الهاتف
+                if (parentPhone && !isValidPhoneNumber(parentPhone.toString())) {
+                    isValidRow = false;
+                }
+                
+                if (isValidRow) {
+                    rowsToImport.push({
+                        row,
+                        index: i
+                    });
+                }
+            }
+            
+            // تحديث إجمالي العدد
+            totalToImport.textContent = rowsToImport.length;
+            
+            // بدء الاستيراد
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (let i = 0; i < rowsToImport.length; i++) {
+                const { row, index } = rowsToImport[i];
+                
+                // تحديث التقدم
+                currentImported.textContent = i + 1;
+                const progress = Math.round(((i + 1) / rowsToImport.length) * 100);
+                importProgressBar.style.width = `${progress}%`;
+                
+                try {
+                    // تجميع بيانات الطالب
+                    const student = {
+                        studentId: row[excelColumnMapping['student-id']].toString(),
+                        name: row[excelColumnMapping['student-name']].toString(),
+                        grade: row[excelColumnMapping['grade']].toString(),
+                        classRoom: row[excelColumnMapping['class-room']].toString(),
+                        semester: row[excelColumnMapping['semester']].toString(),
+                        gender: row[excelColumnMapping['gender']].toString(),
+                        parentPhone: row[excelColumnMapping['parent-phone']].toString(),
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    // إضافة المنطقة إذا وجدت
+                    if (excelColumnMapping['region'] !== undefined && row[excelColumnMapping['region']]) {
+                        student.region = row[excelColumnMapping['region']].toString();
+                    }
+                    
+                    // التحقق من عدم وجود رقم أساس مكرر
+                    const existingStudents = await studentsCollection.where('studentId', '==', student.studentId).get();
+                    
+                    if (!existingStudents.empty) {
+                        // تخطي الصف لوجود رقم مكرر
+                        console.warn(`رقم الاسيس مكرر للصف ${index}: ${student.studentId}`);
+                        continue;
+                    }
+                    
+                    // إضافة الطالب إلى Firebase
+                    await studentsCollection.add(student);
+                    successCount++;
+                    
+                    // انتظار وقت قصير بين الإضافات
+                    if (i < rowsToImport.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                } catch (error) {
+                    console.error(`خطأ في استيراد الصف ${index}:`, error);
+                    errorCount++;
+                }
+            }
+            
+            // إظهار النتائج
+            importProgressContainer.classList.add('hidden');
+            
+            if (errorCount > 0 && successCount === 0) {
+                // فشل كامل
+                importError.classList.remove('hidden');
+                errorMessage.textContent = `فشل استيراد البيانات. حدث ${errorCount} خطأ.`;
+            } else {
+                // نجاح (كلي أو جزئي)
+                importSuccess.classList.remove('hidden');
+                successCount.textContent = successCount;
+                
+                if (errorCount > 0) {
+                    // نجاح جزئي
+                    errorMessage.textContent = `تم استيراد ${successCount} طالب بنجاح، ولكن حدث ${errorCount} خطأ.`;
+                    importError.classList.remove('hidden');
+                }
+            }
+            
+            // إظهار زر الإنهاء
+            finishImport.classList.remove('hidden');
+            
+            // تحديث جدول الطلاب
+            loadStudentsTable();
+        }
+        
+        // عرض خطأ الاستيراد
+        function showImportError(message) {
+            importProgressContainer.classList.add('hidden');
+            importSuccess.classList.add('hidden');
+            importError.classList.remove('hidden');
+            errorMessage.textContent = message;
+            finishImport.classList.remove('hidden');
         }
         
         // التحقق من صحة نموذج الرسالة
@@ -3815,57 +4648,21 @@
             // إنشاء كائن Blob
             const blob = new Blob([wbout], { type: format === 'excel' ? 'application/octet-stream' : 'text/csv' });
             
-            // عرض رسالة حول كيفية حفظ الملف (نظراً لأن التنزيل المباشر غير مسموح به في iframe)
-            showToast('تم إنشاء التقرير. يرجى استخدام زر الحفظ في المتصفح للتنزيل', 'success');
+            // إنشاء URL للتنزيل
+            const url = window.URL.createObjectURL(blob);
             
-            showExportInstructions(fileName, format);
-        }
-        
-        // عرض تعليمات التصدير
-        function showExportInstructions(fileName, format) {
-            const extension = format === 'excel' ? 'xlsx' : 'csv';
+            // إنشاء رابط التنزيل
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.${format === 'excel' ? 'xlsx' : 'csv'}`;
+            document.body.appendChild(a);
+            a.click();
             
-            // إنشاء نافذة حوار مع تعليمات
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 z-50 overflow-y-auto';
-            modal.innerHTML = `
-                <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                        <div class="absolute inset-0 bg-gray-500 opacity-75 dark:bg-gray-900 dark:opacity-80"></div>
-                    </div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="mb-4">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-                                    تم إنشاء التقرير بنجاح
-                                </h3>
-                            </div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                <p class="mb-4">بسبب قيود المتصفح، لا يمكن تنزيل الملف مباشرة. يرجى اتباع الخطوات التالية:</p>
-                                <ol class="list-decimal mr-6 space-y-2">
-                                    <li>افتح تطبيق Office على جهازك</li>
-                                    <li>قم بإنشاء ملف جديد فارغ</li>
-                                    <li>انسخ البيانات من الجدول أدناه ثم الصقها في الملف</li>
-                                    <li>احفظ الملف باسم <strong>${fileName}.${extension}</strong></li>
-                                </ol>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="button" id="close-export-instructions" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-700">
-                                إغلاق
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // إضافة مستمع حدث لزر الإغلاق
-            document.getElementById('close-export-instructions').addEventListener('click', () => {
-                document.body.removeChild(modal);
-            });
+            // تنظيف
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 0);
         }
         
         // عرض رسالة في النموذج
@@ -4047,3 +4844,4 @@
     </script>
 </body>
 </html>
+
